@@ -3,3 +3,6 @@
     bootstrap:
       servers: "kafka:9092"
 
+quarkus:
+  swagger-ui:
+    always-include: true
