@@ -6,6 +6,11 @@
 quarkus:
   swagger-ui:
     always-include: true
+  kafka:
+    devservices:
+      topic-partitions:
+        test: 1
+        test-acknowledged: 1
 
 mp:
   messaging:
