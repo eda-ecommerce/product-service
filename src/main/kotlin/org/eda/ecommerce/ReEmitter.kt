@@ -15,7 +15,7 @@ class ReEmitter {
     private lateinit var testAcknowledgedEmitter: Emitter<String>
 
     @Incoming("test-in")
-    // Re-emits any events received via the `test-in` channel (kafka topic 'test') to the `test-acknowledged-out` channel (kafka topic 'test-acknowledged-out').
+    // Re-emits any events received via the `test-in` channel (kafka topic 'test') to the `test-acknowledged-out` channel (kafka topic 'test-acknowledged').
     fun consume(value: String) {
         println(value)
 
