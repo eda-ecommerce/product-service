@@ -6,3 +6,14 @@
 quarkus:
   swagger-ui:
     always-include: true
+
+mp:
+  messaging:
+    outgoing:
+      test-out:
+        topic: "test"
+      test-acknowledged-out:
+        topic: "test-acknowledged"
+    incoming:
+      test-in:
+        topic: "test"
