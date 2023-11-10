@@ -1,4 +1,4 @@
-package org.eda.ecommerce.e2e
+package org.eda.ecommerce.integration
 
 import io.quarkus.test.common.QuarkusTestResource
 import io.quarkus.test.junit.QuarkusTest
