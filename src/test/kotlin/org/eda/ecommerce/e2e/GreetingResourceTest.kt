@@ -1,4 +1,4 @@
-package org.eda.ecommerce
+package org.eda.ecommerce.e2e
 
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
