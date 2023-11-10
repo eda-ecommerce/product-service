@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test
 
 @QuarkusTest
 @QuarkusTestResource(KafkaCompanionResource::class)
-class KafkaEmitterOnPostTest {
+class ReEmitterTest {
 
     @InjectKafkaCompanion
     lateinit var companion: KafkaCompanion
