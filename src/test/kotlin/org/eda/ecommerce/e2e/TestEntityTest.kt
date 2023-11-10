@@ -10,7 +10,7 @@ import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion
 import io.vertx.core.json.JsonObject
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.eda.ecommerce.GenericJSONSerdeFactory
+import org.eda.ecommerce.JsonSerdeFactory
 import org.eda.ecommerce.TestEntity
 import org.eda.ecommerce.TestEntityRepository
 import org.junit.jupiter.api.*
@@ -28,7 +28,7 @@ class TestEntityTest {
 
     @BeforeAll
     fun setup() {
-        val testEntityJsonSerdeFactory = GenericJSONSerdeFactory<TestEntity>()
+        val testEntityJsonSerdeFactory = JsonSerdeFactory<TestEntity>()
         companion.registerSerde(
             TestEntity::class.java,
             testEntityJsonSerdeFactory.createSerializer(),
