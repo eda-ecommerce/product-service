@@ -44,3 +44,6 @@ nb-configuration.xml
 
 # Sqlite Database
 database.db
+
+# Sqlite test Database
+test.db

@@ -3,6 +3,18 @@
     bootstrap:
       servers: "kafka:9092"
 
+"%test":
+  quarkus:
+    hibernate-orm:
+      database:
+        generation: "drop-and-create"
+    datasource:
+      db-kind: "sqlite"
+      username: "template"
+      password: "secret"
+      jdbc:
+        url: "jdbc:sqlite:test.db"
+
 quarkus:
   swagger-ui:
     always-include: true
