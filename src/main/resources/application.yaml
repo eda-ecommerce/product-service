@@ -11,6 +11,15 @@ quarkus:
       topic-partitions:
         test: 1
         test-acknowledged: 1
+  hibernate-orm:
+    database:
+      generation: "update"
+  datasource:
+    db-kind: "sqlite"
+    username: "template"
+    password: "secret"
+    jdbc:
+      url: "jdbc:sqlite:database.db"
 
 mp:
   messaging:
@@ -19,6 +28,10 @@ mp:
         topic: "test"
       test-acknowledged-out:
         topic: "test-acknowledged"
+      test-entity-out:
+        topic: "test-entity"
     incoming:
       test-in:
         topic: "test"
+      test-entity-in:
+        topic: "test-entity"
