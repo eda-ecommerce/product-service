@@ -9,7 +9,7 @@ import org.eda.ecommerce.data.models.TestEntity
 class TestEntityRepository : PanacheRepository<TestEntity> {
 
     @Transactional
-    fun persistWithTransaction (testEntity: TestEntity) {
+    fun persistWithTransaction(testEntity: TestEntity) {
         super.persist(testEntity)
     }
 }
