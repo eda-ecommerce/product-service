@@ -1,4 +1,4 @@
-package org.eda.ecommerce
+package org.eda.ecommerce.data.models
 
 import io.quarkus.hibernate.orm.panache.PanacheEntity
 import jakarta.persistence.Entity

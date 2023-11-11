@@ -11,8 +11,8 @@ import io.vertx.core.json.JsonObject
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
 import org.eda.ecommerce.JsonSerdeFactory
-import org.eda.ecommerce.TestEntity
-import org.eda.ecommerce.TestEntityRepository
+import org.eda.ecommerce.data.models.TestEntity
+import org.eda.ecommerce.data.repositories.TestEntityRepository
 import org.junit.jupiter.api.*
 
 
