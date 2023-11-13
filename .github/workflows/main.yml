@@ -20,11 +20,13 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: dockerinfo
-        run: docker ps
-
       - name: Test with Maven
         run: mvn -B test --file pom.xml
+
+      - uses: actions/setup-node@v4
+        if: ${{ github.event_name == 'push' }}
+        with:
+          node-version: '18'
 
       - name: Semantic Release
         uses: cycjimmy/semantic-release-action@v4
