@@ -27,6 +27,10 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         uses: cycjimmy/semantic-release-action@v4
         id: semantic-release
+        with:
+          extra-plugins: |
+            @semantic-release/exec
+            @semantic-release/git
         env:
           persist-credentials: false
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
