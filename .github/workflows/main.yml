@@ -28,7 +28,7 @@ jobs:
         uses: cycjimmy/semantic-release-action@v4
         id: semantic-release
         with:
-          extra-plugins: |
+          extra_plugins: |
             @semantic-release/exec
             @semantic-release/git
         env:
