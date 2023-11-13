@@ -2,7 +2,12 @@
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+It utilizes the kafka integration and persistence with Panache using a sqlite database.
+
+For development and testing we use Quarkus Dev-Services which automatically spins up a redpanda instance if docker is 
+running on the current host and performs all actions via real kafka channels and not just mocked in memory.
+
+> If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
 
 ## Running the application in dev mode
 
