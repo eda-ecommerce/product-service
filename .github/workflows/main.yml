@@ -62,4 +62,4 @@ jobs:
           push: true
           context: .
           file: ./src/main/docker/Dockerfile.jvm
-          tags: ghcr.io/${{ steps.repo-name.outputs.REPO_LOWERCASE }}:${{ steps.semantic-release.outputs.new_release_version }}, ghcr.io/${{ steps.repo-name.outputs.REPO_LOWERCASE }}:${{ steps.semantic-release.outputs.new_release_version }}
+          tags: ghcr.io/${{ steps.repo-name.outputs.REPO_LOWERCASE }}:${{ steps.semantic-release.outputs.new_release_version }}, ghcr.io/${{ steps.repo-name.outputs.REPO_LOWERCASE }}:latest
