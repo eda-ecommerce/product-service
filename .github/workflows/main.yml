@@ -20,6 +20,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: dockerinfo
+        run: docker ps
+
       - name: Test with Maven
         run: mvn -B test --file pom.xml
 
