@@ -52,6 +52,17 @@ class ProductController {
         return Response.created(URI.create("/products/" + product.id)).build()
     }
 
+    @PUT
+    @Transactional
+    fun updateProduct(product: Product): Response {
+        val updated = productService.updateProduct(product)
+
+        return if (updated)
+            Response.status(Response.Status.ACCEPTED).build()
+        else
+            Response.status(Response.Status.NOT_FOUND).build()
+    }
+
     @DELETE
     @Transactional
     fun deleteProductById(
