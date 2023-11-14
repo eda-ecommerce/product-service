@@ -10,6 +10,6 @@ class ProductRepository : PanacheRepository<Product> {
 
     @Transactional
     fun persistWithTransaction(product: Product) {
-        super.persist(product)
+        persist(product)
     }
 }
