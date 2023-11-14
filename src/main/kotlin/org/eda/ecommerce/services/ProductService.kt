@@ -43,7 +43,7 @@ class ProductService {
     }
 
     fun createNewProduct(product: Product) {
-        productRepository.persistWithTransaction(product)
+        productRepository.persist(product)
 
         val productEvent = ProductEvent(
             source = "product-service",
@@ -51,7 +51,7 @@ class ProductService {
             payload = product
         )
 
-        productEmitter.send(productEvent)
+        productEmitter.send(productEvent).toCompletableFuture().get()
     }
 
 }
