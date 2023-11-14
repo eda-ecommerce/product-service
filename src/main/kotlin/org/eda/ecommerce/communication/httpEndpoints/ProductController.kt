@@ -43,6 +43,7 @@ class ProductController {
     }
 
     @POST
+    @Transactional
     fun createNewProduct(productDTO: CreateProductDTO): Response {
         val product = productDTO.toProduct()
 
