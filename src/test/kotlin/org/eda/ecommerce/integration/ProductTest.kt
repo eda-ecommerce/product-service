@@ -45,7 +45,6 @@ class ProductTest {
     }
 
     @Test
-    @Transactional
     fun testCreationAndPersistenceOnPost() {
         val jsonBody: JsonObject = JsonObject()
             .put("color", "red")
@@ -64,7 +63,6 @@ class ProductTest {
     }
 
     @Test
-    @Transactional
     fun testKafkaEmitOnPost() {
         val jsonBody: JsonObject = JsonObject()
             .put("color", "green")
@@ -82,11 +80,11 @@ class ProductTest {
 
         productConsumer.awaitCompletion()
 
-        val testEntityResponse = productConsumer.firstRecord.value()
-        Assertions.assertEquals("product-service", testEntityResponse.source)
-        Assertions.assertEquals("created", testEntityResponse.type)
-        Assertions.assertEquals(jsonBody.getValue("color"), testEntityResponse.payload.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), testEntityResponse.payload.description)
+        val event = productConsumer.firstRecord.value()
+        Assertions.assertEquals("product-service", event.source)
+        Assertions.assertEquals("created", event.type)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
     }
 
     @Test
