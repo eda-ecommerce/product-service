@@ -1,6 +1,7 @@
 package org.eda.ecommerce.communication.httpEndpoints
 
 import jakarta.inject.Inject
+import jakarta.transaction.Transactional
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.MediaType
 import jakarta.ws.rs.core.Response
@@ -48,5 +49,24 @@ class ProductController {
         productService.createNewProduct(product)
 
         return Response.created(URI.create("/products/" + product.id)).build()
+    }
+
+    @DELETE
+    @Transactional
+    fun deleteProductById(
+        @QueryParam("id")
+        @Parameter(
+            name = "id",
+            description = "The ID of the Product to be deleted.",
+            schema = Schema(type = SchemaType.NUMBER, format = "long")
+        )
+        id: Long
+    ): Response {
+        val deleted = productService.deleteById(id)
+
+        return if (deleted)
+            Response.status(Response.Status.ACCEPTED).build()
+        else
+            Response.status(Response.Status.NOT_FOUND).build()
     }
 }

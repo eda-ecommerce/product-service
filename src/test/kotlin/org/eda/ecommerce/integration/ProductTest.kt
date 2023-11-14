@@ -89,4 +89,44 @@ class ProductTest {
         Assertions.assertEquals(jsonBody.getValue("description"), testEntityResponse.payload.description)
     }
 
+    @Test
+    fun testDelete() {
+        val jsonBody: JsonObject = JsonObject()
+            .put("color", "orange")
+            .put("description", "An orange thing")
+
+        given()
+            .contentType("application/json")
+            .body(jsonBody.toString())
+            .`when`().post("/products")
+            .then()
+            .statusCode(201)
+
+        Assertions.assertEquals(1, productRepository.count())
+
+        val createdId = productRepository.listAll()[0].id
+
+        given()
+            .contentType("application/json")
+            .`when`()
+            .queryParam("id", createdId)
+            .delete("/products")
+            .then()
+            .statusCode(202)
+
+        val productConsumer: ConsumerTask<String, ProductEvent> =
+            companion.consume(ProductEvent::class.java).fromTopics("product", 2)
+
+        productConsumer.awaitCompletion()
+
+        val event = productConsumer.records[1].value()
+        Assertions.assertEquals("product-service", event.source)
+        Assertions.assertEquals("deleted", event.type)
+        Assertions.assertEquals(createdId, event.payload.id)
+        Assertions.assertEquals(null, event.payload.color)
+        Assertions.assertEquals(null, event.payload.description)
+
+        Assertions.assertEquals(0, productRepository.count())
+    }
+
 }
