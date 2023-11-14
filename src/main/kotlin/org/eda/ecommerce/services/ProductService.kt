@@ -26,8 +26,24 @@ class ProductService {
         return productRepository.findById(id)
     }
 
+    fun deleteById(id: Long): Boolean {
+        val productToDelete = productRepository.findById(id) ?: return false
+
+        productRepository.delete(productToDelete)
+
+        val productEvent = ProductEvent(
+            source = "product-service",
+            type = "deleted",
+            payload = Product().apply { this.id = id }
+        )
+
+        productEmitter.send(productEvent).toCompletableFuture().get()
+
+        return true
+    }
+
     fun createNewProduct(product: Product) {
-        productRepository.persistWithTransaction(product)
+        productRepository.persist(product)
 
         val productEvent = ProductEvent(
             source = "product-service",
@@ -35,7 +51,7 @@ class ProductService {
             payload = product
         )
 
-        productEmitter.send(productEvent)
+        productEmitter.send(productEvent).toCompletableFuture().get()
     }
 
 }
