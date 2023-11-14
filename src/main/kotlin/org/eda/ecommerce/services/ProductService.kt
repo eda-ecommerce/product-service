@@ -8,6 +8,7 @@ import org.eda.ecommerce.data.models.Product
 import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
 
+
 @ApplicationScoped
 class ProductService {
 
@@ -52,6 +53,27 @@ class ProductService {
         )
 
         productEmitter.send(productEvent).toCompletableFuture().get()
+    }
+
+    fun updateProduct(product: Product) : Boolean {
+        val entity = productRepository.findById(product.id) ?: return false
+
+        entity.apply {
+            this.color = product.color
+            this.description = product.description
+        }
+
+        productRepository.persist(entity)
+
+        val productEvent = ProductEvent(
+            source = "product-service",
+            type = "updated",
+            payload = entity
+        )
+
+        productEmitter.send(productEvent).toCompletableFuture().get()
+
+        return true
     }
 
 }

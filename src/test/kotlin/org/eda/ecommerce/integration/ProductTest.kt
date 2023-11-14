@@ -127,4 +127,49 @@ class ProductTest {
         Assertions.assertEquals(0, productRepository.count())
     }
 
+    @Test
+    fun testUpdate() {
+        val jsonBody: JsonObject = JsonObject()
+            .put("color", "orange")
+            .put("description", "An orange thing")
+
+        given()
+            .contentType("application/json")
+            .body(jsonBody.toString())
+            .`when`().post("/products")
+            .then()
+            .statusCode(201)
+
+        Assertions.assertEquals(1, productRepository.count())
+
+        val createdId = productRepository.listAll()[0].id
+
+        val jsonBodyUpdated: JsonObject = JsonObject()
+            .put("id", createdId)
+            .put("color", "green")
+            .put("description", "An (orange) green thing")
+
+        given()
+            .contentType("application/json")
+            .body(jsonBodyUpdated.toString())
+            .`when`()
+            .put("/products")
+            .then()
+            .statusCode(202)
+
+        val productConsumer: ConsumerTask<String, ProductEvent> =
+            companion.consume(ProductEvent::class.java).fromTopics("product", 2)
+
+        productConsumer.awaitCompletion()
+
+        val event = productConsumer.records[1].value()
+        Assertions.assertEquals("product-service", event.source)
+        Assertions.assertEquals("updated", event.type)
+        Assertions.assertEquals(createdId, event.payload.id)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("color"), event.payload.color)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("description"), event.payload.description)
+
+        Assertions.assertEquals(1, productRepository.count())
+    }
+
 }
