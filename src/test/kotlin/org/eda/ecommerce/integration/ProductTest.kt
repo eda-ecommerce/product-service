@@ -240,7 +240,7 @@ class ProductTest {
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("updated", event.type)
         Assertions.assertEquals(createdId, event.payload.id)
-        Assertions.assertEquals(jsonBodyUpdated.getValue("status"), event.payload.status.value)
+        Assertions.assertEquals(ProductStatus.RETIRED, event.payload.status)
         Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
         Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
 
