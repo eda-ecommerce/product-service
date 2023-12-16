@@ -37,7 +37,7 @@ class ProductService {
         productRepository.delete(productToDelete)
 
         val productEvent = ProductDeletedEvent(
-            payload = Product().apply { this.id = id }
+            payload = productToDelete
         )
 
         productEmitter.send(productEvent).toCompletableFuture().get()

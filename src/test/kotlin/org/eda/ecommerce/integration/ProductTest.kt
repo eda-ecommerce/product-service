@@ -150,6 +150,8 @@ class ProductTest {
         Assertions.assertEquals(createdId, event.payload.id)
         Assertions.assertEquals(null, event.payload.color)
         Assertions.assertEquals(null, event.payload.description)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
 
         Assertions.assertEquals(0, productRepository.count())
     }
