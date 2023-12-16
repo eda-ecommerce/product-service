@@ -17,10 +17,9 @@ class Product : PanacheEntityBase() {
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
     var id: UUID? = null
 
-
-    var color: String? = null
-    var description: String? = null
     var status: ProductStatus = ProductStatus.ACTIVE
+    var color: String = ""
+    var description: String = ""
 
     override fun toString(): String {
         return "Product(id=${id}, status=$status, color=$color, description=$description))"
@@ -28,8 +27,8 @@ class Product : PanacheEntityBase() {
 }
 
 class CreateProductDTO {
-    var color: String? = null
-    var description: String? = null
+    lateinit var color: String
+    lateinit var description: String
 
     fun toProduct(): Product {
         val product = Product()
