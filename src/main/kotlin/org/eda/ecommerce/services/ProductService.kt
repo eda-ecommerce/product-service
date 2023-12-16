@@ -5,6 +5,7 @@ import jakarta.inject.Inject
 import org.eclipse.microprofile.reactive.messaging.Channel
 import org.eclipse.microprofile.reactive.messaging.Emitter
 import org.eda.ecommerce.data.models.Product
+import org.eda.ecommerce.data.models.UpdateProductDTO
 import org.eda.ecommerce.data.models.events.ProductCreatedEvent
 import org.eda.ecommerce.data.models.events.ProductDeletedEvent
 import org.eda.ecommerce.data.models.events.ProductEvent
@@ -55,12 +56,13 @@ class ProductService {
         productEmitter.send(productEvent).toCompletableFuture().get()
     }
 
-    fun updateProduct(product: Product) : Boolean {
-        val entity = productRepository.findById(product.id) ?: return false
+    fun updateProduct(productDTO: UpdateProductDTO) : Boolean {
+        val entity = productRepository.findById(productDTO.id) ?: return false
 
         entity.apply {
-            this.color = product.color
-            this.description = product.description
+            this.status = productDTO.status ?: entity.status
+            this.color = productDTO.color ?: entity.color
+            this.description = productDTO.description ?: entity.description
         }
 
         productRepository.persist(entity)

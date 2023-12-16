@@ -15,6 +15,7 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.eda.ecommerce.JsonSerdeFactory
+import org.eda.ecommerce.data.models.ProductStatus
 import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
 import org.eda.ecommerce.helpers.KafkaTestHelper
@@ -90,6 +91,7 @@ class ProductTest {
         val createdId = productRepository.listAll()[0].id
 
         Assertions.assertEquals(jsonBody.getValue("color"), productRepository.findById(createdId).color)
+        Assertions.assertEquals(ProductStatus.ACTIVE, productRepository.findById(createdId).status)
         Assertions.assertEquals(jsonBody.getValue("description"), productRepository.findById(createdId).description)
     }
 
@@ -112,6 +114,7 @@ class ProductTest {
 
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("created", event.type)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
         Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
         Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
     }
@@ -148,8 +151,7 @@ class ProductTest {
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("deleted", event.type)
         Assertions.assertEquals(createdId, event.payload.id)
-        Assertions.assertEquals(null, event.payload.color)
-        Assertions.assertEquals(null, event.payload.description)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
         Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
         Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
 
@@ -157,7 +159,7 @@ class ProductTest {
     }
 
     @Test
-    fun testUpdate() {
+    fun testAttributeUpdate() {
         val jsonBody: JsonObject = JsonObject()
             .put("color", "orange")
             .put("description", "An orange thing")
@@ -194,8 +196,53 @@ class ProductTest {
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("updated", event.type)
         Assertions.assertEquals(createdId, event.payload.id)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
         Assertions.assertEquals(jsonBodyUpdated.getValue("color"), event.payload.color)
         Assertions.assertEquals(jsonBodyUpdated.getValue("description"), event.payload.description)
+
+        Assertions.assertEquals(1, productRepository.count())
+    }
+
+    @Test
+    fun testStatusUpdate() {
+        val jsonBody: JsonObject = JsonObject()
+            .put("color", "orange")
+            .put("description", "An orange thing")
+
+        given()
+            .contentType("application/json")
+            .body(jsonBody.toString())
+            .`when`().post("/products")
+            .then()
+            .statusCode(201)
+
+        Assertions.assertEquals(1, productRepository.count())
+
+        val createdId = productRepository.listAll()[0].id
+
+        val jsonBodyUpdated: JsonObject = JsonObject()
+            .put("id", createdId)
+            .put("status", "retired")
+
+        given()
+            .contentType("application/json")
+            .body(jsonBodyUpdated.toString())
+            .`when`()
+            .put("/products")
+            .then()
+            .statusCode(202)
+
+
+        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
+
+        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
+
+        Assertions.assertEquals("product-service", event.source)
+        Assertions.assertEquals("updated", event.type)
+        Assertions.assertEquals(createdId, event.payload.id)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("status"), event.payload.status.value)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
 
         Assertions.assertEquals(1, productRepository.count())
     }

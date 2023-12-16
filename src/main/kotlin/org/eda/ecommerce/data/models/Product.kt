@@ -1,5 +1,6 @@
 package org.eda.ecommerce.data.models
 
+import com.fasterxml.jackson.annotation.JsonValue
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -19,9 +20,10 @@ class Product : PanacheEntityBase() {
 
     var color: String? = null
     var description: String? = null
+    var status: ProductStatus = ProductStatus.ACTIVE
 
     override fun toString(): String {
-        return "Product(id=${id}, color=$color, description=$description)"
+        return "Product(id=${id}, status=$status, color=$color, description=$description))"
     }
 }
 
@@ -41,3 +43,18 @@ class CreateProductDTO {
     }
 }
 
+class UpdateProductDTO {
+    var id: UUID? = null
+    var status: ProductStatus? = ProductStatus.ACTIVE
+    var color: String? = null
+    var description: String? = null
+
+    override fun toString(): String {
+        return "Product(id=$id, status=$status, color=$color, description=$description)"
+    }
+}
+
+enum class ProductStatus(@JsonValue val value: String) {
+    ACTIVE("active"),
+    RETIRED("retired");
+}

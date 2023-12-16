@@ -11,6 +11,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter
 import org.eda.ecommerce.data.models.CreateProductDTO
 import org.eda.ecommerce.data.models.Product
+import org.eda.ecommerce.data.models.UpdateProductDTO
 import org.eda.ecommerce.services.ProductService
 import java.net.URI
 import java.util.*
@@ -55,7 +56,7 @@ class ProductController {
 
     @PUT
     @Transactional
-    fun updateProduct(product: Product): Response {
+    fun updateProduct(product: UpdateProductDTO): Response {
         val updated = productService.updateProduct(product)
 
         return if (updated)
