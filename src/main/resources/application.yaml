@@ -14,12 +14,21 @@
       password: "secret"
       jdbc:
         url: "jdbc:sqlite:test.db"
+    kafka:
+      devservices:
+        port: 32801
+
 
 quarkus:
+  http:
+    port: 8080
+    test-port: 0
   swagger-ui:
     always-include: true
   kafka:
     devservices:
+      image-name: "redpandadata/redpanda:v23.2.18"
+      port: 32800
       topic-partitions:
         product: 1
   hibernate-orm:
@@ -31,6 +40,11 @@ quarkus:
     password: "secret"
     jdbc:
       url: "jdbc:sqlite:database.db"
+
+kafka:
+  auto:
+    offset:
+      reset: "earliest"
 
 mp:
   messaging:

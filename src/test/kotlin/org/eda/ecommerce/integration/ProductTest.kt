@@ -5,15 +5,22 @@ import io.quarkus.test.junit.QuarkusTest
 import io.quarkus.test.kafka.InjectKafkaCompanion
 import io.quarkus.test.kafka.KafkaCompanionResource
 import io.restassured.RestAssured.given
-import io.smallrye.reactive.messaging.kafka.companion.ConsumerTask
+import io.smallrye.common.annotation.Identifier
 import io.smallrye.reactive.messaging.kafka.companion.KafkaCompanion
 import io.vertx.core.json.JsonObject
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
+import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.apache.kafka.clients.consumer.ConsumerRecords
+import org.apache.kafka.clients.consumer.KafkaConsumer
+import org.apache.kafka.common.serialization.StringDeserializer
 import org.eda.ecommerce.JsonSerdeFactory
 import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
+import org.eda.ecommerce.helpers.KafkaTestHelper
 import org.junit.jupiter.api.*
+import java.time.Duration
+import java.util.*
 
 
 @QuarkusTest
@@ -24,24 +31,45 @@ class ProductTest {
     lateinit var companion: KafkaCompanion
 
     @Inject
+    @Identifier("default-kafka-broker")
+    lateinit var kafkaConfig: Map<String, Any>
+
+    lateinit var consumer: KafkaConsumer<String, ProductEvent>
+
+    @Inject
     lateinit var productRepository: ProductRepository
 
     @BeforeAll
     fun setup() {
         val productJsonSerdeFactory = JsonSerdeFactory<ProductEvent>()
-        companion.registerSerde(
-            ProductEvent::class.java,
-            productJsonSerdeFactory.createSerializer(),
+
+        consumer = KafkaConsumer(
+            consumerConfig(),
+            StringDeserializer(),
             productJsonSerdeFactory.createDeserializer(ProductEvent::class.java)
         )
+    }
+
+    fun consumerConfig(): Properties {
+        val properties = Properties()
+        properties.putAll(kafkaConfig)
+        properties[ConsumerConfig.GROUP_ID_CONFIG] = "test-group-id"
+        properties[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG] = "true"
+        properties[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "earliest"
+        return properties
     }
 
     @BeforeEach
     @Transactional
     fun recreateTestedTopics() {
-        companion.topics().delete("product")
-        companion.topics().create("product", 1)
+        KafkaTestHelper.clearTopicIfNotEmpty(companion, "product")
         productRepository.deleteAll()
+        consumer.subscribe(listOf("product"))
+    }
+
+    @AfterEach
+    fun unsubscribeConsumer() {
+        consumer.unsubscribe()
     }
 
     @Test
@@ -75,12 +103,10 @@ class ProductTest {
             .then()
             .statusCode(201)
 
-        val productConsumer: ConsumerTask<String, ProductEvent> =
-            companion.consume(ProductEvent::class.java).fromTopics("product", 1)
+        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
 
-        productConsumer.awaitCompletion()
+        val event = records.records("product").iterator().asSequence().toList().map { it.value() }.first()
 
-        val event = productConsumer.firstRecord.value()
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("created", event.type)
         Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
@@ -112,12 +138,10 @@ class ProductTest {
             .then()
             .statusCode(202)
 
-        val productConsumer: ConsumerTask<String, ProductEvent> =
-            companion.consume(ProductEvent::class.java).fromTopics("product", 2)
+        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
 
-        productConsumer.awaitCompletion()
+        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
 
-        val event = productConsumer.records[1].value()
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("deleted", event.type)
         Assertions.assertEquals(createdId, event.payload.id)
@@ -157,12 +181,11 @@ class ProductTest {
             .then()
             .statusCode(202)
 
-        val productConsumer: ConsumerTask<String, ProductEvent> =
-            companion.consume(ProductEvent::class.java).fromTopics("product", 2)
 
-        productConsumer.awaitCompletion()
+        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
 
-        val event = productConsumer.records[1].value()
+        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
+
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("updated", event.type)
         Assertions.assertEquals(createdId, event.payload.id)
