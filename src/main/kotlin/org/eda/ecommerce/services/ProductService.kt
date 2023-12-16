@@ -5,7 +5,10 @@ import jakarta.inject.Inject
 import org.eclipse.microprofile.reactive.messaging.Channel
 import org.eclipse.microprofile.reactive.messaging.Emitter
 import org.eda.ecommerce.data.models.Product
+import org.eda.ecommerce.data.models.events.ProductCreatedEvent
+import org.eda.ecommerce.data.models.events.ProductDeletedEvent
 import org.eda.ecommerce.data.models.events.ProductEvent
+import org.eda.ecommerce.data.models.events.ProductUpdatedEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
 
 
@@ -32,9 +35,7 @@ class ProductService {
 
         productRepository.delete(productToDelete)
 
-        val productEvent = ProductEvent(
-            source = "product-service",
-            type = "deleted",
+        val productEvent = ProductDeletedEvent(
             payload = Product().apply { this.id = id }
         )
 
@@ -46,9 +47,7 @@ class ProductService {
     fun createNewProduct(product: Product) {
         productRepository.persist(product)
 
-        val productEvent = ProductEvent(
-            source = "product-service",
-            type = "created",
+        val productEvent = ProductCreatedEvent(
             payload = product
         )
 
@@ -65,9 +64,7 @@ class ProductService {
 
         productRepository.persist(entity)
 
-        val productEvent = ProductEvent(
-            source = "product-service",
-            type = "updated",
+        val productEvent = ProductUpdatedEvent(
             payload = entity
         )
 
