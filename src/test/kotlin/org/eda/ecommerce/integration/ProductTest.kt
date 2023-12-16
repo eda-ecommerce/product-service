@@ -86,8 +86,11 @@ class ProductTest {
             .statusCode(201)
 
         Assertions.assertEquals(1, productRepository.count())
-        Assertions.assertEquals(jsonBody.getValue("color"), productRepository.findById(1L).color)
-        Assertions.assertEquals(jsonBody.getValue("description"), productRepository.findById(1L).description)
+
+        val createdId = productRepository.listAll()[0].id
+
+        Assertions.assertEquals(jsonBody.getValue("color"), productRepository.findById(createdId).color)
+        Assertions.assertEquals(jsonBody.getValue("description"), productRepository.findById(createdId).description)
     }
 
     @Test

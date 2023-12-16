@@ -1,16 +1,27 @@
 package org.eda.ecommerce.data.models
 
-import io.quarkus.hibernate.orm.panache.PanacheEntity
-import io.quarkus.hibernate.orm.panache.PanacheEntity_
+import io.quarkus.hibernate.orm.panache.PanacheEntityBase
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.GeneratedValue
+import jakarta.persistence.Id
+import org.hibernate.annotations.GenericGenerator
+import java.util.*
 
 @Entity
-class Product : PanacheEntity() {
+class Product : PanacheEntityBase() {
+    @Id
+    @Column(name = "id")
+    @GeneratedValue(generator = "UUID")
+    @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
+    var id: UUID? = null
+
+
     var color: String? = null
     var description: String? = null
 
     override fun toString(): String {
-        return "Product(id=$id, color=$color, description=$description)"
+        return "Product(id=${id}, color=$color, description=$description)"
     }
 }
 
@@ -26,7 +37,7 @@ class CreateProductDTO {
     }
 
     override fun toString(): String {
-        return "Product(id=${PanacheEntity_.id}, color=$color, description=$description)"
+        return "Product(color=$color, description=$description)"
     }
 }
 

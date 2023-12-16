@@ -10,6 +10,7 @@ import org.eda.ecommerce.data.models.events.ProductDeletedEvent
 import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.models.events.ProductUpdatedEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
+import java.util.UUID
 
 
 @ApplicationScoped
@@ -26,11 +27,11 @@ class ProductService {
         return productRepository.listAll()
     }
 
-    fun findById(id: Long): Product {
+    fun findById(id: UUID): Product {
         return productRepository.findById(id)
     }
 
-    fun deleteById(id: Long): Boolean {
+    fun deleteById(id: UUID): Boolean {
         val productToDelete = productRepository.findById(id) ?: return false
 
         productRepository.delete(productToDelete)

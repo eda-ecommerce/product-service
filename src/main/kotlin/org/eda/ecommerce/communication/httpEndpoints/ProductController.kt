@@ -13,6 +13,7 @@ import org.eda.ecommerce.data.models.CreateProductDTO
 import org.eda.ecommerce.data.models.Product
 import org.eda.ecommerce.services.ProductService
 import java.net.URI
+import java.util.*
 
 @Path("/products")
 class ProductController {
@@ -35,9 +36,9 @@ class ProductController {
         @Parameter(
             name = "id",
             description = "The ID of the Product to be returned.",
-            schema = Schema(type = SchemaType.NUMBER, format = "long")
+            schema = Schema(type = SchemaType.STRING, format = "UUID")
         )
-        id: Long
+        id: UUID
     ): Product {
         return productService.findById(id)
     }
@@ -70,9 +71,9 @@ class ProductController {
         @Parameter(
             name = "id",
             description = "The ID of the Product to be deleted.",
-            schema = Schema(type = SchemaType.NUMBER, format = "long")
+            schema = Schema(type = SchemaType.STRING, format = "UUID")
         )
-        id: Long
+        id: UUID
     ): Response {
         val deleted = productService.deleteById(id)
 
