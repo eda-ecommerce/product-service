@@ -2,10 +2,10 @@ package org.eda.ecommerce.data.models.events
 
 import org.eda.ecommerce.data.models.Product
 
-open class ProductEvent(type: String, var payload: Product) : GenericEvent(type)
+open class ProductEvent(type: String, var content: Product) : GenericEvent(type)
 
-class ProductCreatedEvent(payload: Product) : ProductEvent("created", payload)
+class ProductCreatedEvent(content: Product) : ProductEvent("created", content)
 
-class ProductUpdatedEvent(payload: Product) : ProductEvent("updated", payload)
+class ProductUpdatedEvent(content: Product) : ProductEvent("updated", content)
 
-class ProductDeletedEvent(payload: Product) : ProductEvent("deleted", payload)
+class ProductDeletedEvent(content: Product) : ProductEvent("deleted", content)

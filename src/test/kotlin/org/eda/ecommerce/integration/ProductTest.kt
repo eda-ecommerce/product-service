@@ -114,9 +114,9 @@ class ProductTest {
 
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("created", event.type)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
     }
 
     @Test
@@ -150,10 +150,10 @@ class ProductTest {
 
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("deleted", event.type)
-        Assertions.assertEquals(createdId, event.payload.id)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
+        Assertions.assertEquals(createdId, event.content.id)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
 
         Assertions.assertEquals(0, productRepository.count())
     }
@@ -195,10 +195,10 @@ class ProductTest {
 
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("updated", event.type)
-        Assertions.assertEquals(createdId, event.payload.id)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.payload.status)
-        Assertions.assertEquals(jsonBodyUpdated.getValue("color"), event.payload.color)
-        Assertions.assertEquals(jsonBodyUpdated.getValue("description"), event.payload.description)
+        Assertions.assertEquals(createdId, event.content.id)
+        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("color"), event.content.color)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("description"), event.content.description)
 
         Assertions.assertEquals(1, productRepository.count())
     }
@@ -239,10 +239,10 @@ class ProductTest {
 
         Assertions.assertEquals("product-service", event.source)
         Assertions.assertEquals("updated", event.type)
-        Assertions.assertEquals(createdId, event.payload.id)
-        Assertions.assertEquals(ProductStatus.RETIRED, event.payload.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.payload.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.payload.description)
+        Assertions.assertEquals(createdId, event.content.id)
+        Assertions.assertEquals(ProductStatus.RETIRED, event.content.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
 
         Assertions.assertEquals(1, productRepository.count())
     }

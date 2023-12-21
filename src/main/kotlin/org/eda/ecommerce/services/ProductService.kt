@@ -38,7 +38,7 @@ class ProductService {
         productRepository.delete(productToDelete)
 
         val productEvent = ProductDeletedEvent(
-            payload = productToDelete
+            content = productToDelete
         )
 
         productEmitter.send(productEvent).toCompletableFuture().get()
@@ -50,7 +50,7 @@ class ProductService {
         productRepository.persist(product)
 
         val productEvent = ProductCreatedEvent(
-            payload = product
+            content = product
         )
 
         productEmitter.send(productEvent).toCompletableFuture().get()
@@ -68,7 +68,7 @@ class ProductService {
         productRepository.persist(entity)
 
         val productEvent = ProductUpdatedEvent(
-            payload = entity
+            content = entity
         )
 
         productEmitter.send(productEvent).toCompletableFuture().get()
