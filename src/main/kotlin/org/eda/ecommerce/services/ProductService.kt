@@ -3,7 +3,8 @@ package org.eda.ecommerce.services
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import org.eclipse.microprofile.reactive.messaging.Channel
-import org.eclipse.microprofile.reactive.messaging.Emitter
+import io.smallrye.reactive.messaging.MutinyEmitter
+import org.eclipse.microprofile.reactive.messaging.Message
 import org.eda.ecommerce.data.models.Product
 import org.eda.ecommerce.data.models.UpdateProductDTO
 import org.eda.ecommerce.data.models.events.ProductCreatedEvent
@@ -11,7 +12,7 @@ import org.eda.ecommerce.data.models.events.ProductDeletedEvent
 import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.models.events.ProductUpdatedEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
-import java.util.UUID
+import java.util.*
 
 
 @ApplicationScoped
@@ -22,7 +23,7 @@ class ProductService {
 
     @Inject
     @Channel("product-out")
-    private lateinit var productEmitter: Emitter<ProductEvent>
+    private lateinit var productEmitter: MutinyEmitter<ProductEvent>
 
     fun getAll(): List<Product> {
         return productRepository.listAll()
@@ -41,7 +42,7 @@ class ProductService {
             content = productToDelete
         )
 
-        productEmitter.send(productEvent).toCompletableFuture().get()
+        productEmitter.sendMessageAndAwait(Message.of(productEvent))
 
         return true
     }
@@ -53,10 +54,11 @@ class ProductService {
             content = product
         )
 
-        productEmitter.send(productEvent).toCompletableFuture().get()
+        productEmitter.sendMessageAndAwait(Message.of(productEvent))
+
     }
 
-    fun updateProduct(productDTO: UpdateProductDTO) : Boolean {
+    fun updateProduct(productDTO: UpdateProductDTO): Boolean {
         val entity = productRepository.findById(productDTO.id) ?: return false
 
         entity.apply {
@@ -71,7 +73,7 @@ class ProductService {
             content = entity
         )
 
-        productEmitter.send(productEvent).toCompletableFuture().get()
+        productEmitter.sendMessageAndAwait(Message.of(productEvent))
 
         return true
     }
