@@ -1,8 +1,10 @@
 package org.eda.ecommerce.services
 
 import io.smallrye.reactive.messaging.MutinyEmitter
+import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import org.apache.kafka.common.header.internals.RecordHeaders
 import org.eclipse.microprofile.reactive.messaging.Channel
 import org.eclipse.microprofile.reactive.messaging.Message
 import org.eclipse.microprofile.reactive.messaging.Metadata
@@ -31,13 +33,15 @@ class ProductService {
     }
 
     fun createMessageWithMetadata(product: Product, type: String): Message<Product> {
-        val metadataMap = mapOf(
-            "type" to type,
-            "source" to "product",
-            "timestamp" to System.currentTimeMillis()
-        )
-
-        return Message.of(product, Metadata.of(metadataMap))
+        return Message.of(product, Metadata.of(
+            OutgoingKafkaRecordMetadata.builder<String>()
+                .withHeaders(
+                    RecordHeaders()
+                        .add("operation", type.toByteArray())
+                        .add("source", "product".toByteArray())
+                        .add("timestamp", System.currentTimeMillis().toString().toByteArray())
+                ).build()
+        ))
     }
 
     fun deleteById(id: UUID): Boolean {
