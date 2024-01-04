@@ -15,8 +15,8 @@ import org.apache.kafka.clients.consumer.ConsumerRecords
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.eda.ecommerce.JsonSerdeFactory
+import org.eda.ecommerce.data.models.Product
 import org.eda.ecommerce.data.models.ProductStatus
-import org.eda.ecommerce.data.models.events.ProductEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
 import org.eda.ecommerce.helpers.KafkaTestHelper
 import org.junit.jupiter.api.*
@@ -35,19 +35,19 @@ class ProductTest {
     @Identifier("default-kafka-broker")
     lateinit var kafkaConfig: Map<String, Any>
 
-    lateinit var consumer: KafkaConsumer<String, ProductEvent>
+    lateinit var consumer: KafkaConsumer<String, Product>
 
     @Inject
     lateinit var productRepository: ProductRepository
 
     @BeforeAll
     fun setup() {
-        val productJsonSerdeFactory = JsonSerdeFactory<ProductEvent>()
+        val productJsonSerdeFactory = JsonSerdeFactory<Product>()
 
         consumer = KafkaConsumer(
             consumerConfig(),
             StringDeserializer(),
-            productJsonSerdeFactory.createDeserializer(ProductEvent::class.java)
+            productJsonSerdeFactory.createDeserializer(Product::class.java)
         )
     }
 
@@ -108,15 +108,17 @@ class ProductTest {
             .then()
             .statusCode(201)
 
-        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
+        val records: ConsumerRecords<String, Product> = consumer.poll(Duration.ofMillis(10000))
 
-        val event = records.records("product").iterator().asSequence().toList().map { it.value() }.first()
+        val event = records.records("product").iterator().asSequence().toList().first()
+        val eventPayload = event.value()
+        val eventHeaders = event.headers().toList().associateBy({ it.key() }, { it.value().toString(Charsets.UTF_8) })
 
-        Assertions.assertEquals("product-service", event.source)
-        Assertions.assertEquals("created", event.type)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
+        Assertions.assertEquals("product", eventHeaders["source"])
+        Assertions.assertEquals("created", eventHeaders["operation"])
+        Assertions.assertEquals(ProductStatus.ACTIVE, eventPayload.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), eventPayload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), eventPayload.description)
     }
 
     @Test
@@ -144,16 +146,18 @@ class ProductTest {
             .then()
             .statusCode(202)
 
-        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
+        val records: ConsumerRecords<String, Product> = consumer.poll(Duration.ofMillis(10000))
 
-        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
+        val event = records.records("product").iterator().asSequence().toList()[1]
+        val eventPayload = event.value()
+        val eventHeaders = event.headers().toList().associateBy({ it.key() }, { it.value().toString(Charsets.UTF_8) })
 
-        Assertions.assertEquals("product-service", event.source)
-        Assertions.assertEquals("deleted", event.type)
-        Assertions.assertEquals(createdId, event.content.id)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
+        Assertions.assertEquals("product", eventHeaders["source"])
+        Assertions.assertEquals("deleted", eventHeaders["operation"])
+        Assertions.assertEquals(createdId, eventPayload.id)
+        Assertions.assertEquals(ProductStatus.ACTIVE, eventPayload.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), eventPayload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), eventPayload.description)
 
         Assertions.assertEquals(0, productRepository.count())
     }
@@ -189,16 +193,18 @@ class ProductTest {
             .statusCode(202)
 
 
-        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
+        val records: ConsumerRecords<String, Product> = consumer.poll(Duration.ofMillis(10000))
 
-        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
+        val event = records.records("product").iterator().asSequence().toList()[1]
+        val eventPayload = event.value()
+        val eventHeaders = event.headers().toList().associateBy({ it.key() }, { it.value().toString(Charsets.UTF_8) })
 
-        Assertions.assertEquals("product-service", event.source)
-        Assertions.assertEquals("updated", event.type)
-        Assertions.assertEquals(createdId, event.content.id)
-        Assertions.assertEquals(ProductStatus.ACTIVE, event.content.status)
-        Assertions.assertEquals(jsonBodyUpdated.getValue("color"), event.content.color)
-        Assertions.assertEquals(jsonBodyUpdated.getValue("description"), event.content.description)
+        Assertions.assertEquals("product", eventHeaders["source"])
+        Assertions.assertEquals("updated", eventHeaders["operation"])
+        Assertions.assertEquals(createdId, eventPayload.id)
+        Assertions.assertEquals(ProductStatus.ACTIVE, eventPayload.status)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("color"), eventPayload.color)
+        Assertions.assertEquals(jsonBodyUpdated.getValue("description"), eventPayload.description)
 
         Assertions.assertEquals(1, productRepository.count())
     }
@@ -233,16 +239,18 @@ class ProductTest {
             .statusCode(202)
 
 
-        val records: ConsumerRecords<String, ProductEvent> = consumer.poll(Duration.ofMillis(10000))
+        val records: ConsumerRecords<String, Product> = consumer.poll(Duration.ofMillis(10000))
 
-        val event = records.records("product").iterator().asSequence().toList().map { it.value() }[1]
+        val event = records.records("product").iterator().asSequence().toList()[1]
+        val eventPayload = event.value()
+        val eventHeaders = event.headers().toList().associateBy({ it.key() }, { it.value().toString(Charsets.UTF_8) })
 
-        Assertions.assertEquals("product-service", event.source)
-        Assertions.assertEquals("updated", event.type)
-        Assertions.assertEquals(createdId, event.content.id)
-        Assertions.assertEquals(ProductStatus.RETIRED, event.content.status)
-        Assertions.assertEquals(jsonBody.getValue("color"), event.content.color)
-        Assertions.assertEquals(jsonBody.getValue("description"), event.content.description)
+        Assertions.assertEquals("product", eventHeaders["source"])
+        Assertions.assertEquals("updated", eventHeaders["operation"])
+        Assertions.assertEquals(createdId, eventPayload.id)
+        Assertions.assertEquals(ProductStatus.RETIRED, eventPayload.status)
+        Assertions.assertEquals(jsonBody.getValue("color"), eventPayload.color)
+        Assertions.assertEquals(jsonBody.getValue("description"), eventPayload.description)
 
         Assertions.assertEquals(1, productRepository.count())
     }
