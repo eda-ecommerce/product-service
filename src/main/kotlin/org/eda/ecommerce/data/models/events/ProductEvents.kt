@@ -8,17 +8,17 @@ import org.eclipse.microprofile.reactive.messaging.Metadata
 import org.eda.ecommerce.data.models.Product
 
 
-open class ProductEvent(type: String, payload: Product) : Message<Product> {
-    private val message: Message<Product> = createMessageWithMetadata(payload, type)
+open class ProductEvent(operation: String, product: Product) : Message<Product> {
+    private val message: Message<Product> = createMessageWithMetadata(product, operation)
 
     override fun getPayload(): Product = message.payload
     override fun getMetadata(): Metadata = message.metadata
     companion object {
-        private fun createMessageWithMetadata(product: Product, type: String): Message<Product> {
+        private fun createMessageWithMetadata(product: Product, operation: String): Message<Product> {
             val metadata = Metadata.of(
                 OutgoingKafkaRecordMetadata.builder<String>()
                     .withHeaders(RecordHeaders().apply {
-                        add("operation", type.toByteArray())
+                        add("operation", operation.toByteArray())
                         add("source", "product".toByteArray())
                         add("timestamp", System.currentTimeMillis().toString().toByteArray())
                     }).build()
@@ -28,8 +28,8 @@ open class ProductEvent(type: String, payload: Product) : Message<Product> {
     }
 }
 
-class ProductCreatedEvent(payload: Product) : ProductEvent("created", payload)
+class ProductCreatedEvent(product: Product) : ProductEvent("created", product)
 
-class ProductUpdatedEvent(payload: Product) : ProductEvent("updated", payload)
+class ProductUpdatedEvent(product: Product) : ProductEvent("updated", product)
 
-class ProductDeletedEvent(payload: Product) : ProductEvent("deleted", payload)
+class ProductDeletedEvent(product: Product) : ProductEvent("deleted", product)
