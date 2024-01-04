@@ -1,15 +1,14 @@
 package org.eda.ecommerce.services
 
 import io.smallrye.reactive.messaging.MutinyEmitter
-import io.smallrye.reactive.messaging.kafka.api.OutgoingKafkaRecordMetadata
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import org.apache.kafka.common.header.internals.RecordHeaders
 import org.eclipse.microprofile.reactive.messaging.Channel
-import org.eclipse.microprofile.reactive.messaging.Message
-import org.eclipse.microprofile.reactive.messaging.Metadata
 import org.eda.ecommerce.data.models.Product
 import org.eda.ecommerce.data.models.UpdateProductDTO
+import org.eda.ecommerce.data.models.events.ProductCreatedEvent
+import org.eda.ecommerce.data.models.events.ProductDeletedEvent
+import org.eda.ecommerce.data.models.events.ProductUpdatedEvent
 import org.eda.ecommerce.data.repositories.ProductRepository
 import java.util.*
 
@@ -32,24 +31,12 @@ class ProductService {
         return productRepository.findById(id)
     }
 
-    fun createMessageWithMetadata(product: Product, type: String): Message<Product> {
-        return Message.of(product, Metadata.of(
-            OutgoingKafkaRecordMetadata.builder<String>()
-                .withHeaders(
-                    RecordHeaders()
-                        .add("operation", type.toByteArray())
-                        .add("source", "product".toByteArray())
-                        .add("timestamp", System.currentTimeMillis().toString().toByteArray())
-                ).build()
-        ))
-    }
-
     fun deleteById(id: UUID): Boolean {
         val productToDelete = productRepository.findById(id) ?: return false
 
         productRepository.delete(productToDelete)
 
-        productEmitter.sendMessageAndAwait(createMessageWithMetadata(productToDelete, "deleted"))
+        productEmitter.sendMessageAndAwait(ProductDeletedEvent(productToDelete))
 
         return true
     }
@@ -57,7 +44,7 @@ class ProductService {
     fun createNewProduct(product: Product) {
         productRepository.persist(product)
 
-        productEmitter.sendMessageAndAwait(createMessageWithMetadata(product, "created"))
+        productEmitter.sendMessageAndAwait(ProductCreatedEvent(product))
 
     }
 
@@ -73,7 +60,7 @@ class ProductService {
         productRepository.persist(entity)
 
 
-        productEmitter.sendMessageAndAwait(createMessageWithMetadata(entity, "updated"))
+        productEmitter.sendMessageAndAwait(ProductUpdatedEvent(entity))
 
         return true
     }
