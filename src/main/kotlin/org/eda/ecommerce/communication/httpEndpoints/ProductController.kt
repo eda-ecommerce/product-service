@@ -67,7 +67,6 @@ class ProductController {
     @Operation(summary = "Create and store a new Product")
     @APIResponses(
         APIResponse(responseCode = "201", description = "Product created"),
-        APIResponse(responseCode = "400", description = "Invalid Product data supplied")
     )
     @Transactional
     fun createNewProduct(productDTO: CreateProductDTO): Response {
