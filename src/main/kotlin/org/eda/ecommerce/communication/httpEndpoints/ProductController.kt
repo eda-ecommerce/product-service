@@ -40,7 +40,7 @@ class ProductController {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("{id}")
     @Operation(summary = "Returns a Product by its ID.")
     @APIResponses(
         APIResponse(
@@ -52,7 +52,7 @@ class ProductController {
     )
     @Consumes(MediaType.TEXT_PLAIN)
     fun getById(
-        @QueryParam("id")
+        @PathParam("id")
         @Parameter(
             name = "id",
             description = "The ID of the Product to be returned.",
@@ -95,6 +95,7 @@ class ProductController {
     }
 
     @DELETE
+    @Path("{id}")
     @Operation(summary = "Delete an existing Product")
     @APIResponses(
         APIResponse(responseCode = "202", description = "Product deleted"),
@@ -102,7 +103,7 @@ class ProductController {
     )
     @Transactional
     fun deleteProductById(
-        @QueryParam("id")
+        @PathParam("id")
         @Parameter(
             name = "id",
             description = "The ID of the Product to be deleted.",
